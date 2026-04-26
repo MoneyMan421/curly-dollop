@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CardSnap — Digital Business Card</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="card-page">
+
+  <div id="cardContainer" class="card-outer">
+    <div id="loadingState" class="card-loading">Loading card…</div>
+    <div id="cardContent" class="card-content hidden">
+      <div class="share-card" id="shareCard">
+        <div class="sc-avatar" id="scAvatar"></div>
+        <div class="sc-name"   id="scName"></div>
+        <div class="sc-title"  id="scTitle"></div>
+        <div class="sc-bio"    id="scBio"></div>
+
+        <div class="sc-links"  id="scLinks"></div>
+
+        <div class="sc-actions">
+          <a id="saveContactBtn" class="btn btn-primary" download>💾 Save to Contacts</a>
+          <a href="/" class="btn btn-ghost">⚡ Get My Card — Free</a>
+        </div>
+
+        <div class="sc-footer">⚡ CardSnap · <a href="/">cardsnap.io</a></div>
+      </div>
+    </div>
+    <div id="notFoundState" class="card-notfound hidden">
+      <h2>Card not found 😔</h2>
+      <p>This card may have been removed or the link is incorrect.</p>
+      <a href="/" class="btn btn-primary">Create Your Own Card →</a>
+    </div>
+  </div>
+
+  <script>
+    const id = location.pathname.split('/').pop();
+
+    fetch(`/api/cards/${id}`)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(card => {
+        document.title = `${card.name} — CardSnap`;
+
+        // Apply theme
+        document.querySelector('.share-card').classList.add(`theme-${card.theme || 'light'}`);
+
+        // Avatar initials
+        const initials = card.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        document.getElementById('scAvatar').textContent = initials;
+
+        document.getElementById('scName').textContent  = card.name;
+        document.getElementById('scTitle').textContent = [card.title, card.company].filter(Boolean).join(' · ');
+        if (card.bio) document.getElementById('scBio').textContent = card.bio;
+
+        // Links
+        const links = [];
+        if (card.email)    links.push(`<a href="mailto:${card.email}" class="sc-link">✉️ ${card.email}</a>`);
+        if (card.phone)    links.push(`<a href="tel:${card.phone}"    class="sc-link">📞 ${card.phone}</a>`);
+        if (card.website)  links.push(`<a href="${card.website}" target="_blank" rel="noopener" class="sc-link">🌐 ${card.website.replace(/^https?:\/\//, '')}</a>`);
+        if (card.linkedin) links.push(`<a href="${card.linkedin}" target="_blank" rel="noopener" class="sc-link">💼 LinkedIn</a>`);
+        if (card.twitter)  links.push(`<a href="${card.twitter}"  target="_blank" rel="noopener" class="sc-link">🐦 Twitter / X</a>`);
+        document.getElementById('scLinks').innerHTML = links.join('');
+
+        // Build vCard for Save to Contacts
+        const vcard = [
+          'BEGIN:VCARD', 'VERSION:3.0',
+          `FN:${card.name}`,
+          card.title   ? `TITLE:${card.title}`   : '',
+          card.company ? `ORG:${card.company}`   : '',
+          card.email   ? `EMAIL:${card.email}`   : '',
+          card.phone   ? `TEL:${card.phone}`     : '',
+          card.website ? `URL:${card.website}`   : '',
+          'END:VCARD'
+        ].filter(Boolean).join('\r\n');
+
+        const blob = new Blob([vcard], { type: 'text/vcard' });
+        const saveBtn = document.getElementById('saveContactBtn');
+        saveBtn.href = URL.createObjectURL(blob);
+        saveBtn.download = `${card.name.replace(/\s+/g, '_')}.vcf`;
+
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('cardContent').classList.remove('hidden');
+      })
+      .catch(() => {
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('notFoundState').classList.remove('hidden');
+      });
+  </script>
+</body>
+</html>
