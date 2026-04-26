@@ -55,14 +55,24 @@
         document.getElementById('scTitle').textContent = [card.title, card.company].filter(Boolean).join(' · ');
         if (card.bio) document.getElementById('scBio').textContent = card.bio;
 
-        // Links
-        const links = [];
-        if (card.email)    links.push(`<a href="mailto:${card.email}" class="sc-link">✉️ ${card.email}</a>`);
-        if (card.phone)    links.push(`<a href="tel:${card.phone}"    class="sc-link">📞 ${card.phone}</a>`);
-        if (card.website)  links.push(`<a href="${card.website}" target="_blank" rel="noopener" class="sc-link">🌐 ${card.website.replace(/^https?:\/\//, '')}</a>`);
-        if (card.linkedin) links.push(`<a href="${card.linkedin}" target="_blank" rel="noopener" class="sc-link">💼 LinkedIn</a>`);
-        if (card.twitter)  links.push(`<a href="${card.twitter}"  target="_blank" rel="noopener" class="sc-link">🐦 Twitter / X</a>`);
-        document.getElementById('scLinks').innerHTML = links.join('');
+        // Links — built safely via DOM (no innerHTML with user data)
+        const linksEl = document.getElementById('scLinks');
+        function addLink(href, label) {
+          const a = document.createElement('a');
+          a.href = href;
+          a.textContent = label;
+          a.className = 'sc-link';
+          if (href.startsWith('http')) {
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+          }
+          linksEl.appendChild(a);
+        }
+        if (card.email)    addLink(`mailto:${card.email}`,   `✉️ ${card.email}`);
+        if (card.phone)    addLink(`tel:${card.phone}`,       `📞 ${card.phone}`);
+        if (card.website)  addLink(card.website,              `🌐 ${card.website.replace(/^https?:\/\//, '')}`);
+        if (card.linkedin) addLink(card.linkedin,             `💼 LinkedIn`);
+        if (card.twitter)  addLink(card.twitter,              `🐦 Twitter / X`);
 
         // Build vCard for Save to Contacts
         const vcard = [

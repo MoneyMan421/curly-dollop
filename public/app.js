@@ -1,4 +1,12 @@
-/* ── CardSnap Builder — Client JS ── */
+// Safe text-to-DOM helper (no innerHTML with user data)
+function el(tag, text, attrs) {
+  const e = document.createElement(tag);
+  if (text !== undefined) e.textContent = text;
+  if (attrs) Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+  return e;
+}
+
+
 
 const form       = document.getElementById('cardForm');
 const createBtn  = document.getElementById('createBtn');
@@ -30,11 +38,10 @@ function updatePreview() {
   prevTitle.textContent = [title, company].filter(Boolean).join(' · ') || 'Job Title · Company';
   prevBio.textContent   = bio;
 
-  const links = [];
-  if (email)   links.push(`<span>✉️ ${email}</span>`);
-  if (phone)   links.push(`<span>📞 ${phone}</span>`);
-  if (website) links.push(`<span>🌐 ${website.replace(/^https?:\/\//, '')}</span>`);
-  prevLinks.innerHTML = links.join('');
+  prevLinks.textContent = '';
+  if (email)   prevLinks.appendChild(el('span', `✉️ ${email}`));
+  if (phone)   prevLinks.appendChild(el('span', `📞 ${phone}`));
+  if (website) prevLinks.appendChild(el('span', `🌐 ${website.replace(/^https?:\/\//, '')}`));
 
   // Theme
   preview.className = `preview-card theme-${theme}`;
@@ -102,10 +109,14 @@ function showSuccess(url) {
 
 document.getElementById('copyBtn').addEventListener('click', () => {
   const input = document.getElementById('shareLinkInput');
-  input.select();
-  navigator.clipboard.writeText(input.value).catch(() => document.execCommand('copy'));
-  document.getElementById('copyBtn').textContent = 'Copied!';
-  setTimeout(() => { document.getElementById('copyBtn').textContent = 'Copy'; }, 2000);
+  navigator.clipboard.writeText(input.value)
+    .then(() => {
+      document.getElementById('copyBtn').textContent = 'Copied!';
+      setTimeout(() => { document.getElementById('copyBtn').textContent = 'Copy'; }, 2000);
+    })
+    .catch(() => {
+      alert('Please copy the link manually: ' + input.value);
+    });
 });
 
 document.getElementById('closeModal').addEventListener('click', () => {
