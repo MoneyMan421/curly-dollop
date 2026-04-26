@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build Your Card — CardSnap</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="builder-page">
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">⚡ CardSnap</a>
+    </div>
+  </nav>
+
+  <div class="builder-layout">
+    <!-- ── FORM ── -->
+    <div class="builder-form-col">
+      <h2>Build Your Card</h2>
+      <p class="builder-sub">Fill in the details below. Your live preview updates instantly.</p>
+
+      <form id="cardForm">
+        <div class="form-section">
+          <h3>Personal Info</h3>
+          <div class="field">
+            <label for="name">Full Name <span class="req">*</span></label>
+            <input type="text" id="name" placeholder="Jane Doe" required />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="title">Job Title</label>
+              <input type="text" id="title" placeholder="Product Manager" />
+            </div>
+            <div class="field">
+              <label for="company">Company</label>
+              <input type="text" id="company" placeholder="Acme Corp" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="bio">Short Bio</label>
+            <textarea id="bio" rows="2" placeholder="Building great products at Acme. Coffee enthusiast."></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Contact Details</h3>
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="jane@acme.com" />
+          </div>
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" placeholder="+1 555-0199" />
+          </div>
+          <div class="field">
+            <label for="website">Website</label>
+            <input type="url" id="website" placeholder="https://acme.com" />
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Social Links</h3>
+          <div class="field">
+            <label for="linkedin">LinkedIn URL</label>
+            <input type="url" id="linkedin" placeholder="https://linkedin.com/in/janedoe" />
+          </div>
+          <div class="field">
+            <label for="twitter">Twitter / X URL</label>
+            <input type="url" id="twitter" placeholder="https://twitter.com/janedoe" />
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Appearance</h3>
+          <div class="field">
+            <label>Theme</label>
+            <div class="theme-picker">
+              <label class="theme-opt">
+                <input type="radio" name="theme" value="light" checked />
+                <span class="theme-swatch theme-swatch-light">Light</span>
+              </label>
+              <label class="theme-opt">
+                <input type="radio" name="theme" value="dark" />
+                <span class="theme-swatch theme-swatch-dark">Dark</span>
+              </label>
+              <label class="theme-opt theme-opt-pro">
+                <input type="radio" name="theme" value="brand" disabled />
+                <span class="theme-swatch theme-swatch-brand">Brand <span class="pro-badge">PRO</span></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-full" id="createBtn">
+          ⚡ Create My Card
+        </button>
+      </form>
+    </div>
+
+    <!-- ── LIVE PREVIEW ── -->
+    <div class="builder-preview-col">
+      <h3 class="preview-label">Live Preview</h3>
+      <div id="livePreview" class="preview-card theme-light">
+        <div class="pc-avatar" id="prevAvatar">?</div>
+        <div class="pc-name" id="prevName">Your Name</div>
+        <div class="pc-title" id="prevTitle">Job Title · Company</div>
+        <div class="pc-bio" id="prevBio"></div>
+        <div class="pc-links" id="prevLinks"></div>
+        <div class="pc-footer">⚡ CardSnap</div>
+      </div>
+      <p class="preview-note">This is how your card will look to anyone you share it with.</p>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS MODAL ── -->
+  <div id="successModal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-icon">🎉</div>
+      <h2>Your card is live!</h2>
+      <p>Share this link with anyone:</p>
+      <div class="share-link-box">
+        <input type="text" id="shareLinkInput" readonly />
+        <button class="btn btn-primary" id="copyBtn">Copy</button>
+      </div>
+      <div class="modal-actions">
+        <a id="viewCardLink" href="#" target="_blank" class="btn btn-outline">View Card →</a>
+        <button class="btn btn-ghost" id="closeModal">Build Another</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
