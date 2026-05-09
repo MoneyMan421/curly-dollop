@@ -169,6 +169,11 @@ app.get('/c/:id', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'card.html'));
 });
 
+// Serve the Online Income System prompt page
+app.get('/income-system', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'income-system.html'));
+});
+
 // ── Start ────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`\n🚀 CardSnap running at http://localhost:${PORT}\n`);
