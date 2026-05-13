@@ -159,10 +159,10 @@ app.post('/api/cards', createLimiter, (req, res) => {
 
 // Get a card by ID (and record a view)
 app.get('/api/cards/:id', (req, res) => {
-  const updated = incrementViewsStmt.run(req.params.id);
-  if (!updated.changes) return res.status(404).json({ error: 'Card not found.' });
   const card = getCardStmt.get(req.params.id);
-  res.json(card);
+  if (!card) return res.status(404).json({ error: 'Card not found.' });
+  incrementViewsStmt.run(req.params.id);
+  res.json({ ...card, views: card.views + 1 });
 });
 
 // List all cards (admin / demo purposes)
@@ -218,7 +218,17 @@ const server = app.listen(PORT, () => {
 
 function shutdown(signal) {
   console.log(`\n${signal} received. Shutting down cleanly...`);
-  server.close(() => {
+  const forceExitTimer = setTimeout(() => {
+    console.error('Graceful shutdown timed out. Exiting now.');
+    process.exit(1);
+  }, 10000);
+
+  server.close((err) => {
+    clearTimeout(forceExitTimer);
+    if (err) {
+      console.error('Error during server shutdown:', err);
+      process.exit(1);
+    }
     db.close();
     console.log('✅ Server stopped.');
     process.exit(0);
