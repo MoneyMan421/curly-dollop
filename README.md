@@ -53,6 +53,7 @@ public/
 | `PUT`  | `/api/cards/:id` | Update a card |
 | `DELETE` | `/api/cards/:id` | Delete a card |
 | `GET`  | `/api/cards` | List all cards |
+| `GET`  | `/api/health` | System health + issue report |
 | `GET`  | `/c/:id` | Shareable card page |
 
 ---
