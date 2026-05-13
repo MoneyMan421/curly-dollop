@@ -42,6 +42,19 @@ db.exec(`
   );
 `);
 
+const insertCardStmt = db.prepare(`
+  INSERT INTO cards (id, name, title, company, email, phone, website, linkedin, twitter, bio, avatar_url, theme)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`);
+const getCardStmt = db.prepare('SELECT * FROM cards WHERE id = ?');
+const incrementViewsStmt = db.prepare('UPDATE cards SET views = views + 1 WHERE id = ?');
+const listCardsStmt = db.prepare('SELECT id, name, title, company, views, created_at FROM cards ORDER BY created_at DESC');
+const updateCardStmt = db.prepare(`
+  UPDATE cards SET name=?, title=?, company=?, email=?, phone=?, website=?, linkedin=?, twitter=?, bio=?, avatar_url=?, theme=?
+  WHERE id=?
+`);
+const deleteCardStmt = db.prepare('DELETE FROM cards WHERE id = ?');
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const EMAIL_RE   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SAFE_PROTO = /^https?:\/\//i;
@@ -109,6 +122,26 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/', apiLimiter);
 
+app.get('/api/health', (_req, res) => {
+  const issues = [];
+  let dbOk = true;
+
+  try {
+    db.prepare('SELECT 1').get();
+  } catch (_err) {
+    dbOk = false;
+    issues.push('Database probe failed.');
+  }
+
+  res.status(dbOk ? 200 : 503).json({
+    status: dbOk ? 'ok' : 'degraded',
+    timestamp: new Date().toISOString(),
+    uptimeSeconds: Math.round(process.uptime()),
+    database: dbOk ? 'ok' : 'error',
+    issues,
+  });
+});
+
 // ── API ──────────────────────────────────────────────────────────────────────
 
 // Create a new card
@@ -118,49 +151,46 @@ app.post('/api/cards', createLimiter, (req, res) => {
     return res.status(400).json({ error: 'Name is required.' });
   }
   const id = uuidv4().slice(0, 8);
-  db.prepare(`
-    INSERT INTO cards (id, name, title, company, email, phone, website, linkedin, twitter, bio, avatar_url, theme)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, fields.name, fields.title, fields.company, fields.email, fields.phone,
-         fields.website, fields.linkedin, fields.twitter, fields.bio, fields.avatar_url, fields.theme);
+  insertCardStmt.run(id, fields.name, fields.title, fields.company, fields.email, fields.phone,
+    fields.website, fields.linkedin, fields.twitter, fields.bio, fields.avatar_url, fields.theme);
 
   res.json({ id });
 });
 
 // Get a card by ID (and record a view)
 app.get('/api/cards/:id', (req, res) => {
-  const card = db.prepare('SELECT * FROM cards WHERE id = ?').get(req.params.id);
-  if (!card) return res.status(404).json({ error: 'Card not found.' });
-  db.prepare('UPDATE cards SET views = views + 1 WHERE id = ?').run(req.params.id);
+  const updated = incrementViewsStmt.run(req.params.id);
+  if (!updated.changes) return res.status(404).json({ error: 'Card not found.' });
+  const card = getCardStmt.get(req.params.id);
   res.json(card);
 });
 
 // List all cards (admin / demo purposes)
 app.get('/api/cards', (_req, res) => {
-  const cards = db.prepare('SELECT id, name, title, company, views, created_at FROM cards ORDER BY created_at DESC').all();
+  const cards = listCardsStmt.all();
   res.json(cards);
 });
 
 // Update a card
 app.put('/api/cards/:id', (req, res) => {
-  const card = db.prepare('SELECT id FROM cards WHERE id = ?').get(req.params.id);
+  const card = getCardStmt.get(req.params.id);
   if (!card) return res.status(404).json({ error: 'Card not found.' });
   const fields = sanitizeCardInput(req.body);
   if (!fields.name) {
     return res.status(400).json({ error: 'Name is required.' });
   }
-  db.prepare(`
-    UPDATE cards SET name=?, title=?, company=?, email=?, phone=?, website=?, linkedin=?, twitter=?, bio=?, avatar_url=?, theme=?
-    WHERE id=?
-  `).run(fields.name, fields.title, fields.company, fields.email, fields.phone,
-         fields.website, fields.linkedin, fields.twitter, fields.bio, fields.avatar_url, fields.theme,
-         req.params.id);
+  updateCardStmt.run(fields.name, fields.title, fields.company, fields.email, fields.phone,
+    fields.website, fields.linkedin, fields.twitter, fields.bio, fields.avatar_url, fields.theme,
+    req.params.id);
   res.json({ success: true });
 });
 
 // Delete a card
 app.delete('/api/cards/:id', (req, res) => {
-  db.prepare('DELETE FROM cards WHERE id = ?').run(req.params.id);
+  const removed = deleteCardStmt.run(req.params.id);
+  if (!removed.changes) {
+    return res.status(404).json({ error: 'Card not found.' });
+  }
   res.json({ success: true });
 });
 
@@ -169,7 +199,31 @@ app.get('/c/:id', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'card.html'));
 });
 
+app.use('/api', (_req, res) => {
+  res.status(404).json({ error: 'API route not found.' });
+});
+
+app.use((err, _req, res, _next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ error: 'Invalid JSON payload.' });
+  }
+  console.error('Unhandled error:', err);
+  return res.status(500).json({ error: 'Internal server error.' });
+});
+
 // ── Start ────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`\n🚀 CardSnap running at http://localhost:${PORT}\n`);
 });
+
+function shutdown(signal) {
+  console.log(`\n${signal} received. Shutting down cleanly...`);
+  server.close(() => {
+    db.close();
+    console.log('✅ Server stopped.');
+    process.exit(0);
+  });
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
