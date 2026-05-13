@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Income System Prompt — CardSnap</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="prompt-page">
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">⚡ CardSnap</a>
+      <div class="nav-links">
+        <a href="builder.html" class="btn btn-primary btn-sm">Create a Card →</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="prompt-layout">
+    <header class="prompt-header">
+      <h1>AI Prompt: Build a Complete Online Income System</h1>
+      <p class="prompt-sub">
+        Fill in your details, then copy the generated prompt into your AI assistant. Goal-first: helping people.
+      </p>
+    </header>
+
+    <section class="prompt-grid">
+      <form class="prompt-form" id="promptForm">
+        <div class="form-section">
+          <h3>Your Details</h3>
+
+          <div class="field">
+            <label for="fullName">Name <span class="req">*</span></label>
+            <input type="text" id="fullName" value="Collin Dunkley" required />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="roleExample">Example Role</label>
+              <input type="text" id="roleExample" value="AI content creator" placeholder="e.g., AI content creator" />
+            </div>
+            <div class="field">
+              <label for="timePerWeek">Time / Week</label>
+              <input type="text" id="timePerWeek" placeholder="e.g., 5–10 hours/week" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="budget">Budget</label>
+              <input type="text" id="budget" placeholder="e.g., $0–$200/month" />
+            </div>
+            <div class="field">
+              <label for="goal30">30-Day Goal</label>
+              <input type="text" id="goal30" placeholder="e.g., first 3 paying clients" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="skills">Skills / Assets (optional)</label>
+            <textarea id="skills" rows="3" placeholder="What you can already do, tools you have, audience you have, past results…"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="constraints">Constraints (optional)</label>
+            <textarea id="constraints" rows="2" placeholder="Schedule limits, region, niche restrictions, platform preferences…"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="helpGoal">How you want to help people <span class="req">*</span></label>
+            <textarea id="helpGoal" rows="2" required placeholder="Who do you want to help, and how? (This is the goal)"></textarea>
+          </div>
+        </div>
+      </form>
+
+      <div class="prompt-output">
+        <div class="prompt-output-head">
+          <h2>Your Prompt</h2>
+          <div class="prompt-actions">
+            <button class="btn btn-outline btn-sm" id="copyPromptBtn" type="button">Copy</button>
+            <button class="btn btn-ghost btn-sm" id="resetPromptBtn" type="button">Reset</button>
+          </div>
+        </div>
+
+        <div class="prompt-note">
+          Paste this into ChatGPT (or any AI) and answer follow-up questions honestly. Keep it ethical and helpful.
+        </div>
+
+        <textarea class="prompt-textarea" id="promptText" readonly></textarea>
+      </div>
+    </section>
+  </main>
+
+  <script src="income-system.js"></script>
+</body>
+</html>

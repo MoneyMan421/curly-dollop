@@ -27,6 +27,10 @@ npm start
 # → Open http://localhost:3000
 ```
 
+## 🧠 Bonus: Online Income System Prompt
+
+Open `http://localhost:3000/income-system` for a copy/paste prompt generator that creates a complete “online income system” prompt (with a helping-people-first goal).
+
 ---
 
 ## 📁 Project Structure
@@ -37,9 +41,11 @@ cardsnap.db         SQLite database (auto-created on first run)
 public/
   index.html        Conversion-focused landing page
   builder.html      Drag-and-drop card builder UI
+  income-system.html AI prompt builder page
   card.html         Shareable card view (+ Save to Contacts)
   styles.css        All styles
   app.js            Builder client-side logic
+  income-system.js  Prompt page client-side logic
 ```
 
 ---

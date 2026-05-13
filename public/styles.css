@@ -263,3 +263,52 @@ section.bg-subtle { padding: 80px 24px; }
 .sc-footer a { color: var(--primary); }
 
 .hidden { display: none !important; }
+
+/* ── Prompt Page ─────────────────────────────────────── */
+.prompt-page { background: var(--bg-subtle); min-height: 100vh; }
+.prompt-layout { max-width: 1140px; margin: 0 auto; padding: 44px 24px 80px; }
+.prompt-header { text-align: center; margin-bottom: 28px; }
+.prompt-header h1 { font-size: clamp(1.8rem, 3.4vw, 2.6rem); }
+.prompt-sub { color: var(--muted); max-width: 760px; margin: 10px auto 0; }
+
+.prompt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 920px) {
+  .prompt-grid { grid-template-columns: 1fr; }
+}
+
+.prompt-output {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.prompt-output-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.prompt-output-head h2 { font-size: 1.05rem; font-weight: 800; }
+.prompt-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.prompt-note { color: var(--muted); font-size: .86rem; margin-bottom: 12px; }
+.prompt-textarea {
+  width: 100%;
+  min-height: 340px;
+  max-height: 560px;
+  padding: 12px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: .86rem;
+  line-height: 1.5;
+  background: var(--bg-subtle);
+  color: var(--text);
+  resize: vertical;
+}
